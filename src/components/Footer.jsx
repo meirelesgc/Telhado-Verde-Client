@@ -10,8 +10,8 @@ const Footer = () => {
             mx: 2,
             mt: 'auto',
             textAlign: 'center',
-            bgcolor: '#fff',
-            borderRadius: '12px',
+            bgcolor: 'background.paper',
+            borderRadius: (theme) => `${theme.shape.borderRadius}px`,
             boxShadow: '0px -2px 15px rgba(0,0,0,0.05)',
         }}
     >

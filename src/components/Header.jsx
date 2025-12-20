@@ -4,11 +4,11 @@ const Header = ({ drawerWidth }) => {
     return <AppBar
         position="fixed"
         sx={{
-            width: `calc(100% - ${drawerWidth}px - 40px)`,
+            width: (theme) => `calc(100% - ${drawerWidth}px - 40px)`,
             ml: `${drawerWidth}px`,
             mt: 2,
             mr: 2,
-            borderRadius: '16px',
+            borderRadius: (theme) => `${theme.shape.borderRadius}px`,
             backgroundColor: 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(8px)',
             color: 'primary.main',

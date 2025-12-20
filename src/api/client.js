@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://seu-backend-api.com/api',
-    timeout: 10000,
+    baseURL: 'http://seu-backend.com/api',
 });
 
 export default api;
