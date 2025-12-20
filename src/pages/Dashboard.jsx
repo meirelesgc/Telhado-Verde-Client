@@ -69,7 +69,6 @@ const DataContent = ({ isLoading, isError, children }) => {
     );
 };
 
-// --- Componente Principal ---
 
 export default function Dashboard() {
     const {

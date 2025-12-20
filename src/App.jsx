@@ -8,7 +8,7 @@ function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<MainLayout />}>
-                    <Route index element={<Dashboard />} /> {/* Caminho padrão "/" */}
+                    <Route index element={<Dashboard />} />
                     <Route path="configuracoes" element={<Configuracoes />} />
                     <Route path="*" element={<div>Página não encontrada</div>} />
                 </Route>
