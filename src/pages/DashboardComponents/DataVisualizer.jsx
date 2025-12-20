@@ -40,7 +40,7 @@ export const DataVisualizer = ({ type, mode, data }) => {
         <Box sx={{ height: 350, width: '100%' }}>
             <ResponsiveContainer width="100%" height="100%">
                 {type === 'temperatura' ? (
-                    /* Gráfico de Área para Temperatura */
+                    /* Gráfico de Área para Temperatura usando Verde Musgo */
                     <AreaChart data={data}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
@@ -49,10 +49,10 @@ export const DataVisualizer = ({ type, mode, data }) => {
                         />
                         <YAxis />
                         <Tooltip labelFormatter={(l) => new Date(l).toLocaleString('pt-BR')} />
-                        <Area type="monotone" dataKey="valor" stroke="#1976d2" fillOpacity={0.1} fill="#1976d2" />
+                        <Area type="monotone" dataKey="valor" stroke="#4A9F3C" fillOpacity={0.2} fill="#4A9F3C" />
                     </AreaChart>
                 ) : (
-                    /* Gráfico de Barras para Umidade */
+                    /* Gráfico de Barras para Umidade usando Verde Folha */
                     <BarChart data={data}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
@@ -61,7 +61,7 @@ export const DataVisualizer = ({ type, mode, data }) => {
                         />
                         <YAxis />
                         <Tooltip labelFormatter={(l) => new Date(l).toLocaleString('pt-BR')} />
-                        <Bar dataKey="valor" fill="#0288d1" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="valor" fill="#9CD35E" radius={[4, 4, 0, 0]} />
                     </BarChart>
                 )}
             </ResponsiveContainer>

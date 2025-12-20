@@ -49,8 +49,8 @@ const Sidebar = ({ drawerWidth }) => {
                             component={NavLink}
                             to={item.path}
                             style={({ isActive }) => ({
-                                backgroundColor: isActive ? '#e0e0e0' : 'transparent',
-                                color: isActive ? 'primary.main' : 'inherit' // Usa a cor do tema
+                                backgroundColor: isActive ? '#F2E1B9' : 'transparent',
+                                color: isActive ? '#4A9F3C' : 'inherit'
                             })}
                         >
                             <ListItemIcon sx={{ color: 'inherit' }}>

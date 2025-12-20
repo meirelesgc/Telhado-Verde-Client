@@ -68,8 +68,8 @@ export default function Dashboard() {
 
     const menuItems = [
         { id: 'temperatura', label: 'Temperatura', icon: <DeviceThermostatIcon color="primary" /> },
-        { id: 'umidade', label: 'Umidade', icon: <WaterDropIcon sx={{ color: '#0288d1' }} /> },
-        { id: 'dispositivos', label: 'Dispositivos', icon: <MemoryIcon color="success" /> }
+        { id: 'umidade', label: 'Umidade', icon: <WaterDropIcon color="primary" /> }, // Mudado de azul fixo para primary
+        { id: 'dispositivos', label: 'Dispositivos', icon: <MemoryIcon color="secondary" /> } // Usa o Verde Folha
     ];
 
     return (
