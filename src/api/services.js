@@ -10,12 +10,12 @@ export const getSensores = async () => {
     return data;
 };
 
-export const getLeiturasTemperatura = async () => {
-    const { data } = await api.get('/leitura_temperatura');
+export const getLeiturasTemperatura = async (params) => {
+    const { data } = await api.get('/leitura_temperatura', { params });
     return data;
 };
 
-export const getLeiturasUmidade = async () => {
-    const { data } = await api.get('/leitura_umidade');
+export const getLeiturasUmidade = async (params) => {
+    const { data } = await api.get('/leitura_umidade', { params });
     return data;
 };

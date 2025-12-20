@@ -15,16 +15,18 @@ export const useSensores = () => {
     });
 };
 
-export const useLeiturasTemperatura = () => {
+export const useLeiturasTemperatura = (filtros) => {
     return useQuery({
-        queryKey: ['leituras', 'temperatura'],
-        queryFn: services.getLeiturasTemperatura,
+        queryKey: ['leituras', 'temperatura', filtros],
+        queryFn: () => services.getLeiturasTemperatura(filtros),
+        enabled: !!filtros?.data_inicio && !!filtros?.data_fim,
     });
 };
 
-export const useLeiturasUmidade = () => {
+export const useLeiturasUmidade = (filtros) => {
     return useQuery({
-        queryKey: ['leituras', 'umidade'],
-        queryFn: services.getLeiturasUmidade,
+        queryKey: ['leituras', 'umidade', filtros],
+        queryFn: () => services.getLeiturasUmidade(filtros),
+        enabled: !!filtros?.data_inicio && !!filtros?.data_fim,
     });
 };
