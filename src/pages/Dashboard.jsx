@@ -1,20 +1,82 @@
 import React from 'react';
 import { Box, Typography, Grid, CircularProgress, Alert } from '@mui/material';
-
-// Imports dos novos módulos
 import { useMonitoramento } from '../hooks/useMonitoramento';
 import { SensorChart } from '../components/charts/SensorChart';
 import { RecentReadingsTable } from '../components/tables/RecentReadingsTable';
 import { DashboardControls } from '../components/dashboard/DashboardControls';
 
+// --- Sub-componentes ---
+
+const DashboardHeader = ({ filtros, setFiltros, onDownload, disableDownload }) => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', mb: 3 }}>
+        <Typography variant="h4" sx={{ mb: 2 }}>
+            Monitoramento
+        </Typography>
+        <DashboardControls
+            filtros={filtros}
+            setFiltros={setFiltros}
+            onDownload={onDownload}
+            disableDownload={disableDownload}
+        />
+    </Box>
+);
+
+
+const SensorSection = ({ title, color, data, unit }) => (
+    <Grid item xs={12} sx={{ mb: 4 }}>
+        <Grid container spacing={2}>
+
+            <Grid item xs={12}>
+                <Typography variant="h5" sx={{ mb: 1, color: color }}>
+                    {title}
+                </Typography>
+            </Grid>
+
+            <Grid item xs={12}>
+                <SensorChart
+                    title="Evolução Temporal"
+                    data={data}
+                    color={color}
+                    unit={unit}
+                />
+            </Grid>
+
+            <Grid item xs={12}>
+                <RecentReadingsTable data={data} />
+            </Grid>
+
+        </Grid>
+    </Grid>
+);
+
+const DataContent = ({ isLoading, isError, children }) => {
+    if (isError) {
+        return <Alert severity="error" sx={{ mb: 2 }}>Erro ao carregar dados.</Alert>;
+    }
+
+    if (isLoading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    return (
+        <Grid container>
+            {children}
+        </Grid>
+    );
+};
+
+// --- Componente Principal ---
+
 export default function Dashboard() {
-    // Toda a lógica complexa foi movida para este hook
     const {
         filtros,
         setFiltros,
         temperaturaData,
         umidadeData,
-        tabelaData,
         isLoading,
         isError,
         handleDownloadCSV
@@ -22,50 +84,30 @@ export default function Dashboard() {
 
     return (
         <Box>
-            {/* Cabeçalho e Controles */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h4">Monitoramento Ambiental</Typography>
-                <DashboardControls
-                    filtros={filtros}
-                    setFiltros={setFiltros}
-                    onDownload={handleDownloadCSV}
-                    disableDownload={isLoading || isError}
+            <DashboardHeader
+                filtros={filtros}
+                setFiltros={setFiltros}
+                onDownload={handleDownloadCSV}
+                disableDownload={isLoading || isError}
+            />
+
+            <DataContent isLoading={isLoading} isError={isError}>
+
+                <SensorSection
+                    title="Temperatura"
+                    color="#ff5722"
+                    unit="°C"
+                    data={temperaturaData}
                 />
-            </Box>
 
-            {/* Feedback Visual */}
-            {isError && <Alert severity="error" sx={{ mb: 2 }}>Erro ao carregar dados.</Alert>}
+                <SensorSection
+                    title="Umidade"
+                    color="#2196f3"
+                    unit="%"
+                    data={umidadeData}
+                />
 
-            {isLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                    <CircularProgress />
-                </Box>
-            ) : (
-                <Grid container spacing={3}>
-                    {/* Gráficos Reutilizáveis */}
-                    <Grid item xs={12} md={6}>
-                        <SensorChart
-                            title="Temperatura"
-                            data={temperaturaData}
-                            color="#ff5722"
-                            unit="°C"
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <SensorChart
-                            title="Umidade"
-                            data={umidadeData}
-                            color="#2196f3"
-                            unit="%"
-                        />
-                    </Grid>
-
-                    {/* Tabela Isolada */}
-                    <Grid item xs={12}>
-                        <RecentReadingsTable data={tabelaData} />
-                    </Grid>
-                </Grid>
-            )}
+            </DataContent>
         </Box>
     );
 }

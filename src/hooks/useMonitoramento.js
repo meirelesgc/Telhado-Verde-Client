@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useLeituras } from './useLeituras';
 import { downloadCSV } from '../utils/exportCsv';
 
@@ -6,42 +6,39 @@ export const useMonitoramento = () => {
     // 1. Estado local de filtros
     const [filtros, setFiltros] = useState({
         idDispositivo: 1,
+        idSensor: '', // [NOVO] Estado para o sensor
         dataInicio: new Date().toISOString().split('T')[0],
         dataFim: new Date().toISOString().split('T')[0]
     });
 
     // 2. Buscas de dados (React Query)
+    // O hook useLeituras já foi atualizado para ler filtros.idSensor
     const tempQuery = useLeituras('temperatura', filtros);
     const umidQuery = useLeituras('umidade', filtros);
 
     const isLoading = tempQuery.isLoading || umidQuery.isLoading;
     const isError = tempQuery.isError || umidQuery.isError;
 
-    // 3. Processamento de dados (Memoizado para performance)
-    // Aqui centralizamos a lógica de unir os dados para a tabela
-    const dadosUnificados = useMemo(() => {
-        if (isLoading || isError) return [];
+    // 3. Preparação dos dados
+    // Não precisamos mais "unificar" tudo numa tabela só. 
+    // Vamos apenas formatar ou ordenar se necessário.
+    const sortedTemp = (tempQuery.data || []).sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
+    const sortedUmid = (umidQuery.data || []).sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
 
-        const temps = (tempQuery.data || []).map(d => ({ ...d, tipo: 'Temperatura' }));
-        const umids = (umidQuery.data || []).map(d => ({ ...d, tipo: 'Umidade' }));
-
-        return [...temps, ...umids]
-            .sort((a, b) => new Date(b.criado_em) - new Date(a.criado_em));
-    }, [tempQuery.data, umidQuery.data, isLoading, isError]);
-
-    // 4. Lógica de Download
+    // 4. Lógica de Download (Combina os dois para o CSV)
     const handleDownloadCSV = () => {
-        if (dadosUnificados.length > 0) {
-            downloadCSV(dadosUnificados, `relatorio_${filtros.dataInicio}.csv`);
-        }
+        const dadosParaBaixar = [
+            ...sortedTemp.map(d => ({ ...d, tipo: 'Temperatura' })),
+            ...sortedUmid.map(d => ({ ...d, tipo: 'Umidade' }))
+        ];
+        downloadCSV(dadosParaBaixar, `relatorio_${filtros.dataInicio}.csv`);
     };
 
     return {
         filtros,
         setFiltros,
-        temperaturaData: tempQuery.data || [],
-        umidadeData: umidQuery.data || [],
-        tabelaData: dadosUnificados.slice(0, 50), // Regra de negócio: mostrar apenas top 50 na tela
+        temperaturaData: sortedTemp, // Dados ordenados para Gráfico e Tabela de Temp
+        umidadeData: sortedUmid,     // Dados ordenados para Gráfico e Tabela de Umid
         isLoading,
         isError,
         handleDownloadCSV
