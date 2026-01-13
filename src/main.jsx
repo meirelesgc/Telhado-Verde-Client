@@ -11,11 +11,11 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-if (import.meta.env.DEV) {
-    import('./api/mocks').then(() => {
-        console.log('API Mocks ativos');
-    });
-}
+// if (import.meta.env.DEV) {
+//     import('./api/mocks').then(() => {
+//         console.log('API Mocks ativos');
+//     });
+// }
 
 const queryClient = new QueryClient({
     defaultOptions: {
