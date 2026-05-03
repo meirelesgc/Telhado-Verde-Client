@@ -6,7 +6,6 @@ import {
     FormControl, InputLabel
 } from '@mui/material';
 
-// Hooks e Utils
 import {
     useDispositivos,
     useLeiturasTemperatura,
@@ -15,12 +14,10 @@ import {
 } from '../hooks/useTelhadoVerde';
 import { downloadCSV } from '../utils/exportUtils';
 
-// Componentes
 import { SummaryCards } from './DashboardComponents/SummaryCards';
 import { DataVisualizer } from './DashboardComponents/DataVisualizer';
 import { DeviceStatusList } from './DashboardComponents/DeviceStatusList';
 
-// Ícones
 import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import MemoryIcon from '@mui/icons-material/Memory';
@@ -30,30 +27,21 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 export default function Dashboard() {
-    // 1. Estados de Controle
     const [activeView, setActiveView] = useState('temperatura');
     const [displayMode, setDisplayMode] = useState('chart');
 
-    // 2. Estado Único de Filtros
-    const [filtros, setFiltros] = useState({
-        data_inicio: new Date(Date.now() - 86400000).toISOString().slice(0, 16),
-        data_fim: new Date().toISOString().slice(0, 16),
-        id_dispositivo: ''
-    });
+    const [filtros, setFiltros] = useState({});
 
-    // 3. Busca de Dados (React Query)
     const { data: dispositivos, isLoading: loadingDisp, isError: errorDisp } = useDispositivos();
     const { data: temperaturas, isLoading: loadingTemp } = useLeiturasTemperatura(filtros);
     const { data: umidades, isLoading: loadingUmid } = useLeiturasUmidade(filtros);
     const { data: sensores } = useSensores();
 
-    // 4. Manipulador de Mudanças nos Filtros
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
         setFiltros(prev => ({ ...prev, [name]: value }));
     };
 
-    // 5. Tratamento de Estados de Carregamento e Erro
     if (loadingDisp || (activeView === 'temperatura' && loadingTemp) || (activeView === 'umidade' && loadingUmid)) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -68,13 +56,12 @@ export default function Dashboard() {
 
     const menuItems = [
         { id: 'temperatura', label: 'Temperatura', icon: <DeviceThermostatIcon color="primary" /> },
-        { id: 'umidade', label: 'Umidade', icon: <WaterDropIcon color="primary" /> }, // Mudado de azul fixo para primary
-        { id: 'dispositivos', label: 'Dispositivos', icon: <MemoryIcon color="secondary" /> } // Usa o Verde Folha
+        { id: 'umidade', label: 'Umidade', icon: <WaterDropIcon color="primary" /> },
+        { id: 'dispositivos', label: 'Dispositivos', icon: <MemoryIcon color="secondary" /> }
     ];
 
     return (
         <Box sx={{ width: '100%' }}>
-            {/* Barra de Filtros Consolidada */}
             <Card sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
                 <Stack
                     direction={{ xs: 'column', md: 'row' }}
@@ -89,7 +76,6 @@ export default function Dashboard() {
                         </Typography>
                     </Stack>
 
-                    {/* Seletor de Dispositivo */}
                     <FormControl size="small" sx={{ minWidth: 220 }}>
                         <InputLabel>Dispositivo</InputLabel>
                         <Select
@@ -107,24 +93,11 @@ export default function Dashboard() {
                         </Select>
                     </FormControl>
 
-                    {/* Data Início */}
                     <TextField
-                        label="Data Inicial"
-                        type="datetime-local"
+                        label="Data"
+                        type="date"
                         name="data_inicio"
                         value={filtros.data_inicio}
-                        onChange={handleFiltroChange}
-                        size="small"
-                        InputLabelProps={{ shrink: true }}
-                        sx={{ width: { xs: '100%', md: 'auto' } }}
-                    />
-
-                    {/* Data Fim */}
-                    <TextField
-                        label="Data Final"
-                        type="datetime-local"
-                        name="data_fim"
-                        value={filtros.data_fim}
                         onChange={handleFiltroChange}
                         size="small"
                         InputLabelProps={{ shrink: true }}
@@ -133,14 +106,12 @@ export default function Dashboard() {
                 </Stack>
             </Card>
 
-            {/* Cartões de Seleção de Categoria */}
             <SummaryCards
                 items={menuItems}
                 activeView={activeView}
                 onCardClick={setActiveView}
             />
 
-            {/* Área Principal de Visualização */}
             <Card sx={{ p: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
                 <Stack
                     direction={{ xs: 'column', sm: 'row' }}
@@ -183,7 +154,6 @@ export default function Dashboard() {
 
                 <Divider sx={{ mb: 3 }} />
 
-                {/* Renderização Condicional do Conteúdo */}
                 {activeView === 'dispositivos' ? (
                     <DeviceStatusList dispositivos={dispositivos} sensores={sensores} />
                 ) : (

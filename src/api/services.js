@@ -1,48 +1,72 @@
 import api from './client';
 
-// FUNÇÕES QUE CONTINUAM MOCKADAS (Pois a API não tem endpoint)
-// Você pode importar do mock ou retornar dados fixos aqui temporariamente
 export const getDispositivos = async () => {
-    // Retornando fixo pois a API não implementa 'listarDispositivos'
     return [
-        { id_dispositivo: 1, nome: 'Sensor Telhado (API Off)', latitude: -23.55, longitude: -46.63 }
+        { id_dispositivo: 1, nome: 'Sensor Telhado', latitude: -23.55, longitude: -46.63 }
     ];
 };
 
 export const getSensores = async () => {
-    // Retornando fixo pois a API não implementa 'listarSensores'
     return [
         { id_sensor: 1, id_dispositivo: 1, tipo: 'Temperatura' },
-        { id_sensor: 1, id_dispositivo: 1, tipo: 'Humidade' } // Atenção: backend usa 'Humidade' ou 'Umidade'? Validar string.
+        { id_sensor: 1, id_dispositivo: 1, tipo: 'Umidade' }
     ];
 };
 
-// FUNÇÕES CONECTADAS À API
 export const getLeiturasTemperatura = async (filtros) => {
-    // A API só aceita YYYY-MM-DD. Pegamos a data inicial do filtro.
-    const dataFormatada = filtros.data_inicio ? filtros.data_inicio.split('T')[0] : new Date().toISOString().split('T')[0];
+    const payload = {
+        tipo: 'temperatura'
+    };
 
-    // O Axios fará um POST na URL base definida no client.js
-    const response = await api.post('', JSON.stringify({
-        action: 'listarPorDia',
-        tipo: 'temperatura',
-        data: dataFormatada,
-        // Opcional: passar id_sensor se o seu filtro tiver
-        // id_sensor: 1 
-    }));
+    if (filtros?.data_inicio) {
+        payload.data = filtros.data_inicio.split('T')[0];
+    }
 
-    // A API retorna { status: 'ok', dados: [...] }. Precisamos retornar apenas o array.
-    return response.data.dados || [];
+    if (filtros?.id_sensor) {
+        payload.id_sensor = filtros.id_sensor;
+    }
+
+    const response = await api.post('/leitura/filtro', payload);
+    return response.data;
 };
 
 export const getLeiturasUmidade = async (filtros) => {
-    const dataFormatada = filtros.data_inicio ? filtros.data_inicio.split('T')[0] : new Date().toISOString().split('T')[0];
+    const payload = {
+        tipo: 'umidade'
+    };
 
-    const response = await api.post('', JSON.stringify({
-        action: 'listarPorDia',
-        tipo: 'umidade',
-        data: dataFormatada
-    }));
+    if (filtros?.data_inicio) {
+        payload.data = filtros.data_inicio.split('T')[0];
+    }
 
-    return response.data.dados || [];
+    if (filtros?.id_sensor) {
+        payload.id_sensor = filtros.id_sensor;
+    }
+
+    const response = await api.post('/leitura/filtro', payload);
+    return response.data;
+};
+export const inserirDispositivo = async (dispositivoData) => {
+    const response = await api.post('/dispositivo/', dispositivoData);
+    return response.data;
+};
+
+export const inserirLeitura = async (leituraData) => {
+    const response = await api.post('/leitura/', leituraData);
+    return response.data;
+};
+
+export const listarLeituraPorTipo = async (tipo) => {
+    const response = await api.get(`/leitura/${tipo}`);
+    return response.data;
+};
+
+export const buscarLeitura = async (tipo, id) => {
+    const response = await api.get(`/leitura/${tipo}/${id}`);
+    return response.data;
+};
+
+export const deletarLeitura = async (id) => {
+    const response = await api.delete(`/leitura/${id}`);
+    return response.data;
 };
