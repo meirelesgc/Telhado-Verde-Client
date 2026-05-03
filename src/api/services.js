@@ -1,9 +1,30 @@
 import api from './client';
 
-export const getDispositivos = async () => {
-    return [
-        { id_dispositivo: 1, nome: 'Sensor Telhado', latitude: -23.55, longitude: -46.63 }
-    ];
+export const getDispositivos = async (skip = 0, limit = 100) => {
+    const response = await api.get('/dispositivo/', {
+        params: { skip, limit }
+    });
+    return response.data;
+};
+
+export const inserirDispositivo = async (dispositivoData) => {
+    const response = await api.post('/dispositivo/', dispositivoData);
+    return response.data;
+};
+
+export const buscarDispositivo = async (id) => {
+    const response = await api.get(`/dispositivo/${id}`);
+    return response.data;
+};
+
+export const atualizarDispositivo = async (id, dispositivoData) => {
+    const response = await api.put(`/dispositivo/${id}`, dispositivoData);
+    return response.data;
+};
+
+export const deletarDispositivo = async (id) => {
+    const response = await api.delete(`/dispositivo/${id}`);
+    return response.data;
 };
 
 export const getSensores = async () => {
@@ -13,42 +34,25 @@ export const getSensores = async () => {
     ];
 };
 
-export const getLeiturasTemperatura = async (filtros) => {
-    const payload = {
-        tipo: 'temperatura'
-    };
+export const listarLeituras = async (filtros = {}) => {
+    const params = {};
 
-    if (filtros?.data_inicio) {
-        payload.data = filtros.data_inicio.split('T')[0];
-    }
+    if (filtros.tipo) params.tipo = filtros.tipo;
+    if (filtros.data) params.data = filtros.data.split('T')[0];
+    if (filtros.id_sensor) params.id_sensor = filtros.id_sensor;
+    params.skip = filtros.skip || 0;
+    params.limit = filtros.limit || 100;
 
-    if (filtros?.id_sensor) {
-        payload.id_sensor = filtros.id_sensor;
-    }
-
-    const response = await api.post('/leitura/filtro', payload);
+    const response = await api.get('/leitura/', { params });
     return response.data;
 };
 
-export const getLeiturasUmidade = async (filtros) => {
-    const payload = {
-        tipo: 'umidade'
-    };
-
-    if (filtros?.data_inicio) {
-        payload.data = filtros.data_inicio.split('T')[0];
-    }
-
-    if (filtros?.id_sensor) {
-        payload.id_sensor = filtros.id_sensor;
-    }
-
-    const response = await api.post('/leitura/filtro', payload);
-    return response.data;
+export const getLeiturasTemperatura = async (filtros = {}) => {
+    return listarLeituras({ ...filtros, tipo: 'temperatura' });
 };
-export const inserirDispositivo = async (dispositivoData) => {
-    const response = await api.post('/dispositivo/', dispositivoData);
-    return response.data;
+
+export const getLeiturasUmidade = async (filtros = {}) => {
+    return listarLeituras({ ...filtros, tipo: 'umidade' });
 };
 
 export const inserirLeitura = async (leituraData) => {
@@ -56,17 +60,27 @@ export const inserirLeitura = async (leituraData) => {
     return response.data;
 };
 
-export const listarLeituraPorTipo = async (tipo) => {
-    const response = await api.get(`/leitura/${tipo}`);
-    return response.data;
-};
-
-export const buscarLeitura = async (tipo, id) => {
-    const response = await api.get(`/leitura/${tipo}/${id}`);
+export const buscarLeitura = async (id) => {
+    const response = await api.get(`/leitura/${id}`);
     return response.data;
 };
 
 export const deletarLeitura = async (id) => {
     const response = await api.delete(`/leitura/${id}`);
+    return response.data;
+};
+
+export const getUltimasLeiturasSensores = async () => {
+    const response = await api.get('/leitura/agregacao/ultima-leitura');
+    return response.data;
+};
+
+export const getEstatisticasLeituras = async (filtros = {}) => {
+    const params = {};
+
+    if (filtros.tipo) params.tipo = filtros.tipo;
+    if (filtros.id_sensor) params.id_sensor = filtros.id_sensor;
+
+    const response = await api.get('/leitura/agregacao/estatisticas', { params });
     return response.data;
 };

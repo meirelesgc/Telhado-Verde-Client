@@ -3,14 +3,15 @@ import {
     Box, CircularProgress, Alert, Card, Stack,
     Typography, Divider, Button, ToggleButton,
     ToggleButtonGroup, TextField, MenuItem, Select,
-    FormControl, InputLabel
+    FormControl, InputLabel, Grid, Paper
 } from '@mui/material';
 
 import {
     useDispositivos,
     useLeiturasTemperatura,
     useLeiturasUmidade,
-    useSensores
+    useSensores,
+    useEstatisticasLeituras
 } from '../hooks/useTelhadoVerde';
 import { downloadCSV } from '../utils/exportUtils';
 
@@ -30,17 +31,35 @@ export default function Dashboard() {
     const [activeView, setActiveView] = useState('temperatura');
     const [displayMode, setDisplayMode] = useState('chart');
 
-    const [filtros, setFiltros] = useState({});
+    const [filtros, setFiltros] = useState({
+        skip: 0,
+        limit: 100
+    });
 
-    const { data: dispositivos, isLoading: loadingDisp, isError: errorDisp } = useDispositivos();
+    const { data: dispositivos, isLoading: loadingDisp, isError: errorDisp } = useDispositivos(0, 100);
+    const { data: sensores } = useSensores();
     const { data: temperaturas, isLoading: loadingTemp } = useLeiturasTemperatura(filtros);
     const { data: umidades, isLoading: loadingUmid } = useLeiturasUmidade(filtros);
-    const { data: sensores } = useSensores();
+
+    const { data: estatisticas } = useEstatisticasLeituras({
+        id_sensor: filtros.id_sensor,
+        tipo: activeView !== 'dispositivos' ? activeView : undefined
+    });
 
     const handleFiltroChange = (e) => {
         const { name, value } = e.target;
-        setFiltros(prev => ({ ...prev, [name]: value }));
+        setFiltros(prev => {
+            const novosFiltros = { ...prev, [name]: value };
+            if (name === 'id_dispositivo') {
+                novosFiltros.id_sensor = '';
+            }
+            return novosFiltros;
+        });
     };
+
+    const sensoresFiltrados = filtros.id_dispositivo
+        ? sensores?.filter(s => s.id_dispositivo === filtros.id_dispositivo)
+        : sensores;
 
     if (loadingDisp || (activeView === 'temperatura' && loadingTemp) || (activeView === 'umidade' && loadingUmid)) {
         return (
@@ -60,6 +79,8 @@ export default function Dashboard() {
         { id: 'dispositivos', label: 'Dispositivos', icon: <MemoryIcon color="secondary" /> }
     ];
 
+    const dadosAtuais = activeView === 'temperatura' ? temperaturas?.dados : umidades?.dados;
+
     return (
         <Box sx={{ width: '100%' }}>
             <Card sx={{ p: 2, mb: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
@@ -76,18 +97,35 @@ export default function Dashboard() {
                         </Typography>
                     </Stack>
 
-                    <FormControl size="small" sx={{ minWidth: 220 }}>
+                    <FormControl size="small" sx={{ minWidth: 200 }}>
                         <InputLabel>Dispositivo</InputLabel>
                         <Select
                             name="id_dispositivo"
-                            value={filtros.id_dispositivo}
+                            value={filtros.id_dispositivo || ''}
                             label="Dispositivo"
                             onChange={handleFiltroChange}
                         >
-                            <MenuItem value=""><em>Todos os dispositivos</em></MenuItem>
-                            {dispositivos?.map(disp => (
-                                <MenuItem key={disp.id_dispositivo} value={disp.id_dispositivo}>
+                            <MenuItem value=""><em>Todos</em></MenuItem>
+                            {dispositivos?.dados?.map(disp => (
+                                <MenuItem key={disp.id} value={disp.id}>
                                     {disp.nome}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 200 }} disabled={!filtros.id_dispositivo && !sensores}>
+                        <InputLabel>Sensor</InputLabel>
+                        <Select
+                            name="id_sensor"
+                            value={filtros.id_sensor || ''}
+                            label="Sensor"
+                            onChange={handleFiltroChange}
+                        >
+                            <MenuItem value=""><em>Todos os sensores</em></MenuItem>
+                            {sensoresFiltrados?.map(s => (
+                                <MenuItem key={s.id_sensor} value={s.id_sensor}>
+                                    {s.tipo} (ID: {s.id_sensor})
                                 </MenuItem>
                             ))}
                         </Select>
@@ -96,8 +134,8 @@ export default function Dashboard() {
                     <TextField
                         label="Data"
                         type="date"
-                        name="data_inicio"
-                        value={filtros.data_inicio}
+                        name="data"
+                        value={filtros.data || ''}
                         onChange={handleFiltroChange}
                         size="small"
                         InputLabelProps={{ shrink: true }}
@@ -111,6 +149,29 @@ export default function Dashboard() {
                 activeView={activeView}
                 onCardClick={setActiveView}
             />
+
+            {activeView !== 'dispositivos' && estatisticas && estatisticas.length > 0 && (
+                <Grid container spacing={2} sx={{ mb: 3 }}>
+                    {estatisticas.map(est => (
+                        <Grid item xs={12} sm={6} md={3} key={`est-${est.id_sensor}`}>
+                            <Paper sx={{ p: 2, textAlign: 'center', border: '1px solid #eee' }} elevation={0}>
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                    Sensor ID: {est.id_sensor}
+                                </Typography>
+                                <Typography variant="body2">
+                                    Mín: {est.minimo} | Máx: {est.maximo}
+                                </Typography>
+                                <Typography variant="subtitle1" fontWeight="bold">
+                                    Média: {est.media}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    Registros: {est.total_leituras}
+                                </Typography>
+                            </Paper>
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
 
             <Card sx={{ p: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
                 <Stack
@@ -142,7 +203,7 @@ export default function Dashboard() {
                                 variant="outlined"
                                 startIcon={<DownloadIcon />}
                                 onClick={() => downloadCSV(
-                                    activeView === 'temperatura' ? temperaturas : umidades,
+                                    dadosAtuais,
                                     `exportacao_${activeView}_${filtros.id_dispositivo || 'geral'}`
                                 )}
                             >
@@ -155,12 +216,12 @@ export default function Dashboard() {
                 <Divider sx={{ mb: 3 }} />
 
                 {activeView === 'dispositivos' ? (
-                    <DeviceStatusList dispositivos={dispositivos} sensores={sensores} />
+                    <DeviceStatusList dispositivos={dispositivos?.dados} sensores={sensores} />
                 ) : (
                     <DataVisualizer
                         type={activeView}
                         mode={displayMode}
-                        data={activeView === 'temperatura' ? temperaturas : umidades}
+                        data={dadosAtuais}
                     />
                 )}
             </Card>
