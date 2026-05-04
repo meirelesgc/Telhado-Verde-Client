@@ -1,22 +1,25 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 import MainLayout from './layouts/MainLayout';
-import Dashboard from './pages/Dashboard';
-import Configuracoes from './pages/Configuracoes';
+import Metricas from './pages/Metricas'
 
 function App() {
-    return <BrowserRouter>
-        <Routes>
-            {/* Rota Pai que contém o Layout */}
-            <Route path="/" element={<MainLayout />}>
-                {/* Rotas Filhas (Renderizadas dentro do Outlet do MainLayout) */}
-                <Route index element={<Dashboard />} /> {/* Caminho padrão "/" */}
-                <Route path="configuracoes" element={<Configuracoes />} />
-                {/* Rota de erro 404 (Opcional) */}
-                <Route path="*" element={<div>Página não encontrada</div>} />
-
-            </Route>
-        </Routes>
-    </BrowserRouter>;
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<MainLayout />}>
+                        <Route index element={<div>Tela inicial</div>} />
+                        <Route path="metricas" element={<Metricas />} />
+                        <Route path="*" element={<div>Página não encontrada</div>} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </ThemeProvider>
+    );
 }
 
 export default App;
