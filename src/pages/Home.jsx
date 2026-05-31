@@ -1,0 +1,55 @@
+import React from 'react';
+import { Box, Typography, Button, Card, CardContent } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import GrassIcon from '@mui/icons-material/Grass';
+import { useRoofs } from '../hooks/useRoofs';
+import { useDispositivos } from '../hooks/useDispositivos';
+
+const Home = () => {
+    const navigate = useNavigate();
+    const { selectedRoofIds } = useRoofs();
+    const { data: dispositivos = [] } = useDispositivos();
+
+    const selectedRoofs = dispositivos.filter(d => selectedRoofIds.includes(d.id));
+
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '70vh',
+                textAlign: 'center',
+                gap: 4
+            }}
+        >
+            <Box>
+                <Typography variant="h1" gutterBottom color="primary">
+                    Bem-vindo ao Telhado Verde
+                </Typography>
+                <Typography variant="h2" color="text.secondary">
+                    Monitoramento inteligente para cidades sustentáveis.
+                </Typography>
+            </Box>
+
+            <Box sx={{ mt: 2 }}>
+                <Typography variant="body1" sx={{ mb: 3 }}>
+                    Para começar, selecione um telhado para monitorar.
+                </Typography>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    startIcon={<GrassIcon />}
+                    onClick={() => navigate('/telhados')}
+                    sx={{ borderRadius: '12px', px: 4, py: 1.5 }}
+                >
+                    Selecionar Telhado
+                </Button>
+            </Box>
+        </Box>
+    );
+};
+
+export default Home;

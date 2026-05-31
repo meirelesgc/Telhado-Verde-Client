@@ -5,10 +5,20 @@ import {
     BottomNavigationAction,
     Paper
 } from '@mui/material';
+import HomeIcon from '@mui/icons-material/Home';
+import GrassIcon from '@mui/icons-material/Grass';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    const getNavValue = () => {
+        if (location.pathname === '/') return '/';
+        if (location.pathname.startsWith('/telhados')) return '/telhados';
+        if (location.pathname.startsWith('/configuracoes')) return '/configuracoes';
+        return location.pathname;
+    };
 
     return (
         <Box
@@ -44,7 +54,7 @@ const MainLayout = () => {
             >
                 <BottomNavigation
                     showLabels
-                    value={location.pathname}
+                    value={getNavValue()}
                     onChange={(event, newValue) => {
                         navigate(newValue);
                     }}
@@ -61,8 +71,24 @@ const MainLayout = () => {
                         }
                     }}
                 >
-                    <BottomNavigationAction disableRipple label="Tela inicial" value="/" />
-                    <BottomNavigationAction disableRipple label="Métricas" value="/metricas" />
+                    <BottomNavigationAction
+                        disableRipple
+                        label="Tela inicial"
+                        value="/"
+                        icon={<HomeIcon />}
+                    />
+                    <BottomNavigationAction
+                        disableRipple
+                        label="Telhados"
+                        value="/telhados"
+                        icon={<GrassIcon />}
+                    />
+                    <BottomNavigationAction
+                        disableRipple
+                        label="Configurações"
+                        value="/configuracoes"
+                        icon={<SettingsIcon />}
+                    />
                 </BottomNavigation>
             </Paper>
         </Box>

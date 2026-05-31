@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TablePagination } from '@mui/material';
 
 export default function TabelaHistorico({ leituras, dispositivos }) {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [prevLeituras, setPrevLeituras] = useState(leituras);
 
-    useEffect(() => {
+    if (leituras !== prevLeituras) {
         setPage(0);
-    }, [leituras]);
+        setPrevLeituras(leituras);
+    }
 
     const getNomeDispositivo = (id) => {
         const dispositivo = dispositivos.find(d => d.id === id);

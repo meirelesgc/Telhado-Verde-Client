@@ -3,21 +3,29 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import theme from './theme';
 import MainLayout from './layouts/MainLayout';
-import Metricas from './pages/Metricas'
+import Home from './pages/Home'
+import TelhadosList from './pages/TelhadosList'
+import Telhados from './pages/Telhados'
+import Configuracoes from './pages/Configuracoes'
+import { RoofProvider } from './context/RoofProvider';
 
 function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<MainLayout />}>
-                        <Route index element={<div>Tela inicial</div>} />
-                        <Route path="metricas" element={<Metricas />} />
-                        <Route path="*" element={<div>Página não encontrada</div>} />
-                    </Route>
-                </Routes>
-            </BrowserRouter>
+            <RoofProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/" element={<MainLayout />}>
+                            <Route index element={<Home />} />
+                            <Route path="telhados" element={<TelhadosList />} />
+                            <Route path="telhados/:id" element={<Telhados />} />
+                            <Route path="configuracoes" element={<Configuracoes />} />
+                            <Route path="*" element={<div>Página não encontrada</div>} />
+                        </Route>
+                    </Routes>
+                </BrowserRouter>
+            </RoofProvider>
         </ThemeProvider>
     );
 }
