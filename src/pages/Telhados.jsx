@@ -10,6 +10,10 @@ import {
     Link
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 
 import { useLeituras, useEstatisticasLeituras, useMediaMovel, useAmplitudeTermica, useTaxaDesidratacao } from '../hooks/useLeituras';
 import { useDispositivos } from '../hooks/useDispositivos';
@@ -186,27 +190,36 @@ export default function Telhados() {
                 }}
             >
                 <BentoCard>
-                    <Typography variant="h3" gutterBottom>
-                        Temperatura Média
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <ThermostatIcon color="primary" fontSize="small" />
+                        <Typography variant="h3">
+                            Temperatura Média
+                        </Typography>
+                    </Box>
                     <Typography variant="h4">
                         {metricasGlobais.temp.media.toFixed(2)} °C
                     </Typography>
                 </BentoCard>
 
                 <BentoCard>
-                    <Typography variant="h3" gutterBottom>
-                        Umidade Média
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <WaterDropIcon color="primary" fontSize="small" />
+                        <Typography variant="h3">
+                            Umidade Média
+                        </Typography>
+                    </Box>
                     <Typography variant="h4">
                         {metricasGlobais.umid.media.toFixed(2)} %
                     </Typography>
                 </BentoCard>
 
                 <BentoCard>
-                    <Typography variant="h3" gutterBottom>
-                        Extremos Temp
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <CompareArrowsIcon color="primary" fontSize="small" />
+                        <Typography variant="h3">
+                            Extremos Temp
+                        </Typography>
+                    </Box>
                     <Typography>
                         Min: {metricasGlobais.temp.minimo.toFixed(2)} °C
                     </Typography>
@@ -216,9 +229,12 @@ export default function Telhados() {
                 </BentoCard>
 
                 <BentoCard>
-                    <Typography variant="h3" gutterBottom>
-                        Total Leituras
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <AnalyticsIcon color="primary" fontSize="small" />
+                        <Typography variant="h3">
+                            Total Leituras
+                        </Typography>
+                    </Box>
                     <Typography variant="h4">
                         {metricasGlobais.temp.total + metricasGlobais.umid.total}
                     </Typography>
