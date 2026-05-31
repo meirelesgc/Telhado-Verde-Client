@@ -1,16 +1,10 @@
 import React from 'react';
-import { Box, Typography, Button, Card, CardContent } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import GrassIcon from '@mui/icons-material/Grass';
-import { useRoofs } from '../hooks/useRoofs';
-import { useDispositivos } from '../hooks/useDispositivos';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { selectedRoofIds } = useRoofs();
-    const { data: dispositivos = [] } = useDispositivos();
-
-    const selectedRoofs = dispositivos.filter(d => selectedRoofIds.includes(d.id));
 
     return (
         <Box

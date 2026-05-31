@@ -44,33 +44,20 @@ export default function Telhados() {
     const { data: dispositivos = [] } = useDispositivos();
     const telhadoAtual = dispositivos.find(d => d.id === idDispositivo);
 
-    const { data: leiturasTempRaw } = useLeituras({ tipo: 'temperatura', limit: 500 });
-    const { data: leiturasUmidRaw } = useLeituras({ tipo: 'umidade', limit: 500 });
+    const { data: leiturasTempRaw } = useLeituras({ tipo: 'temperatura', limit: 500, id_dispositivo: idDispositivo });
+    const { data: leiturasUmidRaw } = useLeituras({ tipo: 'umidade', limit: 500, id_dispositivo: idDispositivo });
 
-    // Filter by dispositivo
+    // Filter by dispositivo (API now handles this, but we keep the memo for format safety)
     const leiturasTemp = useMemo(() => {
-        const data = Array.isArray(leiturasTempRaw?.dados) ? leiturasTempRaw.dados : [];
-        return data.filter(l => l.id_dispositivo === idDispositivo);
-    }, [leiturasTempRaw, idDispositivo]);
+        return Array.isArray(leiturasTempRaw?.dados) ? leiturasTempRaw.dados : [];
+    }, [leiturasTempRaw]);
 
     const leiturasUmid = useMemo(() => {
-        const data = Array.isArray(leiturasUmidRaw?.dados) ? leiturasUmidRaw.dados : [];
-        return data.filter(l => l.id_dispositivo === idDispositivo);
-    }, [leiturasUmidRaw, idDispositivo]);
+        return Array.isArray(leiturasUmidRaw?.dados) ? leiturasUmidRaw.dados : [];
+    }, [leiturasUmidRaw]);
 
-    const { data: statsTemp = [] } = useEstatisticasLeituras({ tipo: 'temperatura' });
-    const { data: statsUmid = [] } = useEstatisticasLeituras({ tipo: 'umidade' });
-
-    // Filter stats by dispositivo
-    const statsTempFiltrado = useMemo(() =>
-        statsTemp.filter(s => s.id_sensor === idDispositivo), // Assuming id_sensor relates to id_dispositivo in stats
-        [statsTemp, idDispositivo]
-    );
-
-    const statsUmidFiltrado = useMemo(() =>
-        statsUmid.filter(s => s.id_sensor === idDispositivo),
-        [statsUmid, idDispositivo]
-    );
+    const { data: statsTemp = [] } = useEstatisticasLeituras({ tipo: 'temperatura', id_dispositivo: idDispositivo });
+    const { data: statsUmid = [] } = useEstatisticasLeituras({ tipo: 'umidade', id_dispositivo: idDispositivo });
 
     const metricasGlobais = useMemo(() => {
         const processar = (leituras) => {
@@ -150,121 +137,123 @@ export default function Telhados() {
                 </Box>
             </Box>
 
+            {/* Top Summary Row */}
             <Box
                 sx={{
                     display: 'grid',
                     gridTemplateColumns: {
                         xs: '1fr',
-                        lg: 'repeat(12, 1fr)'
+                        sm: 'repeat(2, 1fr)',
+                        lg: 'repeat(4, 1fr)'
                     },
-                    gap: 3
+                    gap: 3,
+                    mb: 3
                 }}
             >
-                <BentoCard sx={{ gridColumn: { lg: 'span 3' } }}>
+                <BentoCard>
                     <Typography variant="h3" gutterBottom>
                         Temperatura Média
                     </Typography>
-
                     <Typography variant="h4">
                         {metricasGlobais.temp.media.toFixed(2)} °C
                     </Typography>
                 </BentoCard>
 
-                <BentoCard sx={{ gridColumn: { lg: 'span 3' } }}>
+                <BentoCard>
                     <Typography variant="h3" gutterBottom>
                         Umidade Média
                     </Typography>
-
                     <Typography variant="h4">
                         {metricasGlobais.umid.media.toFixed(2)} %
                     </Typography>
                 </BentoCard>
 
-                <BentoCard sx={{ gridColumn: { lg: 'span 3' } }}>
+                <BentoCard>
                     <Typography variant="h3" gutterBottom>
                         Extremos Temp
                     </Typography>
-
                     <Typography>
                         Min: {metricasGlobais.temp.minimo.toFixed(2)} °C
                     </Typography>
-
                     <Typography>
                         Max: {metricasGlobais.temp.maximo.toFixed(2)} °C
                     </Typography>
                 </BentoCard>
 
-                <BentoCard sx={{ gridColumn: { lg: 'span 3' } }}>
+                <BentoCard>
                     <Typography variant="h3" gutterBottom>
                         Total Leituras
                     </Typography>
-
                     <Typography variant="h4">
                         {metricasGlobais.temp.total + metricasGlobais.umid.total}
                     </Typography>
                 </BentoCard>
+            </Box>
 
-                <BentoCard
-                    sx={{
-                        gridColumn: { lg: 'span 12' },
-                        minHeight: 420
-                    }}
-                >
-                    <Typography variant="h2" gutterBottom>
-                        Evolução Temporal
-                    </Typography>
+            {/* Main Content: Two Columns */}
+            <Box
+                sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                        xs: '1fr',
+                        lg: '7fr 5fr' // Approx 60/40
+                    },
+                    gap: 3,
+                    alignItems: 'start'
+                }}
+            >
+                {/* Left Column (60%) */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <BentoCard>
+                        <Typography variant="h2" gutterBottom>
+                            Evolução Temporal
+                        </Typography>
+                        <Box sx={{ height: 400, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando gráfico...</div>}>
+                                <GraficoEvolucao data={dadosGraficoLinha} />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
 
-                    <Suspense fallback={<div>Carregando gráfico...</div>}>
-                        <GraficoEvolucao data={dadosGraficoLinha} />
-                    </Suspense>
-                </BentoCard>
-
-                <BentoCard
-                    sx={{
-                        gridColumn: { lg: 'span 6' },
-                        minHeight: 360
-                    }}
-                >
-                    <Suspense fallback={<div>Carregando comparação...</div>}>
-                        <GraficoComparativo
-                            data={statsTempFiltrado}
-                            titulo="Temperatura por Sensor"
-                            unidade="°C"
-                            corPrincipal="#ef4444"
+                    <BentoCard>
+                        <Typography variant="h2" gutterBottom>
+                            Histórico de Leituras
+                        </Typography>
+                        <TabelaHistorico
+                            leituras={todasLeituras}
+                            dispositivos={dispositivos}
                         />
-                    </Suspense>
-                </BentoCard>
+                    </BentoCard>
+                </Box>
 
-                <BentoCard
-                    sx={{
-                        gridColumn: { lg: 'span 6' },
-                        minHeight: 360
-                    }}
-                >
-                    <Suspense fallback={<div>Carregando comparação...</div>}>
-                        <GraficoComparativo
-                            data={statsUmidFiltrado}
-                            titulo="Umidade por Sensor"
-                            unidade="%"
-                            corPrincipal="#3b82f6"
-                        />
-                    </Suspense>
-                </BentoCard>
+                {/* Right Column (40%) */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <BentoCard>
+                        <Box sx={{ height: 350, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando comparação...</div>}>
+                                <GraficoComparativo
+                                    data={statsTemp}
+                                    titulo="Temperatura por Sensor"
+                                    unidade="°C"
+                                    corPrincipal="#ef4444"
+                                />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
 
-                <BentoCard
-                    sx={{
-                        gridColumn: { lg: 'span 12' }
-                    }}
-                >
-                    <Typography variant="h2" gutterBottom>
-                        Histórico de Leituras
-                    </Typography>
-
-                    <TabelaHistorico
-                        leituras={todasLeituras}
-                        dispositivos={dispositivos}
-                    />
-                </BentoCard>
+                    <BentoCard>
+                        <Box sx={{ height: 350, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando comparação...</div>}>
+                                <GraficoComparativo
+                                    data={statsUmid}
+                                    titulo="Umidade por Sensor"
+                                    unidade="%"
+                                    corPrincipal="#3b82f6"
+                                />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
+                </Box>
             </Box>
         </Box>
     );
