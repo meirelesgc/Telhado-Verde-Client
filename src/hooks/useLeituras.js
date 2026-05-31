@@ -31,6 +31,39 @@ export const useEstatisticasLeituras = (params) => {
     });
 };
 
+export const useMediaMovel = (params) => {
+    return useQuery({
+        queryKey: ['leituras', 'media-movel', params],
+        queryFn: async () => {
+            const { data } = await leituraService.mediaMovel(params);
+            return data;
+        },
+        enabled: !!params?.data_inicio && !!params?.data_fim && !!params?.tipo,
+    });
+};
+
+export const useAmplitudeTermica = (params) => {
+    return useQuery({
+        queryKey: ['leituras', 'amplitude-termica', params],
+        queryFn: async () => {
+            const { data } = await leituraService.amplitudeTermica(params);
+            return data;
+        },
+        enabled: !!params?.data_inicio && !!params?.data_fim,
+    });
+};
+
+export const useTaxaDesidratacao = (params) => {
+    return useQuery({
+        queryKey: ['leituras', 'taxa-desidratacao', params],
+        queryFn: async () => {
+            const { data } = await leituraService.taxaDesidratacao(params);
+            return data;
+        },
+        enabled: !!params?.data_inicio && !!params?.data_fim,
+    });
+};
+
 export const useLeitura = (id) => {
     return useQuery({
         queryKey: ['leituras', id],

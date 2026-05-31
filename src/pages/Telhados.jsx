@@ -11,12 +11,15 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-import { useLeituras, useEstatisticasLeituras } from '../hooks/useLeituras';
+import { useLeituras, useEstatisticasLeituras, useMediaMovel, useAmplitudeTermica, useTaxaDesidratacao } from '../hooks/useLeituras';
 import { useDispositivos } from '../hooks/useDispositivos';
 import TabelaHistorico from '../components/TabelaHistorico';
 
 const GraficoEvolucao = lazy(() => import('../components/GraficoEvolucao'));
 const GraficoComparativo = lazy(() => import('../components/GraficoComparativo'));
+const GraficoMediaMovel = lazy(() => import('../components/GraficoMediaMovel'));
+const GraficoAmplitudeTermica = lazy(() => import('../components/GraficoAmplitudeTermica'));
+const GraficoTaxaDesidratacao = lazy(() => import('../components/GraficoTaxaDesidratacao'));
 
 const BentoCard = ({ children, sx = {} }) => (
     <Card
@@ -41,6 +44,17 @@ export default function Telhados() {
     const navigate = useNavigate();
     const idDispositivo = parseInt(id);
 
+    // Date range for aggregations (last 7 days)
+    const { dataInicio, dataFim } = useMemo(() => {
+        const fim = new Date();
+        const inicio = new Date();
+        inicio.setDate(fim.getDate() - 7);
+        return {
+            dataFim: fim.toISOString().split('T')[0],
+            dataInicio: inicio.toISOString().split('T')[0]
+        };
+    }, []);
+
     const { data: dispositivos = [] } = useDispositivos();
     const telhadoAtual = dispositivos.find(d => d.id === idDispositivo);
 
@@ -58,6 +72,27 @@ export default function Telhados() {
 
     const { data: statsTemp = [] } = useEstatisticasLeituras({ tipo: 'temperatura', id_dispositivo: idDispositivo });
     const { data: statsUmid = [] } = useEstatisticasLeituras({ tipo: 'umidade', id_dispositivo: idDispositivo });
+
+    // New aggregations
+    const { data: mediaMovelTemp = [] } = useMediaMovel({ 
+        tipo: 'temperatura', 
+        id_dispositivo: idDispositivo,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        intervalo_minutos: 30
+    });
+
+    const { data: amplitudeTermica = [] } = useAmplitudeTermica({
+        id_dispositivo: idDispositivo,
+        data_inicio: dataInicio,
+        data_fim: dataFim
+    });
+
+    const { data: taxaDesidratacao = [] } = useTaxaDesidratacao({
+        id_dispositivo: idDispositivo,
+        data_inicio: dataInicio,
+        data_fim: dataFim
+    });
 
     const metricasGlobais = useMemo(() => {
         const processar = (leituras) => {
@@ -206,7 +241,7 @@ export default function Telhados() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <BentoCard>
                         <Typography variant="h2" gutterBottom>
-                            Evolução Temporal
+                            Evolução Temporal (Últimas 500)
                         </Typography>
                         <Box sx={{ height: 400, width: '100%' }}>
                             <Suspense fallback={<div>Carregando gráfico...</div>}>
@@ -216,9 +251,18 @@ export default function Telhados() {
                     </BentoCard>
 
                     <BentoCard>
-                        <Typography variant="h2" gutterBottom>
-                            Histórico de Leituras
-                        </Typography>
+                        <Box sx={{ height: 400, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando média móvel...</div>}>
+                                <GraficoMediaMovel 
+                                    data={mediaMovelTemp} 
+                                    titulo="Média Móvel - Temperatura (7 dias)" 
+                                    cor="#ef4444" 
+                                />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
+
+                    <BentoCard>
                         <TabelaHistorico
                             leituras={todasLeituras}
                             dispositivos={dispositivos}
@@ -250,6 +294,22 @@ export default function Telhados() {
                                     unidade="%"
                                     corPrincipal="#3b82f6"
                                 />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
+
+                    <BentoCard>
+                        <Box sx={{ height: 350, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando amplitude...</div>}>
+                                <GraficoAmplitudeTermica data={amplitudeTermica} />
+                            </Suspense>
+                        </Box>
+                    </BentoCard>
+
+                    <BentoCard>
+                        <Box sx={{ height: 350, width: '100%' }}>
+                            <Suspense fallback={<div>Carregando desidratação...</div>}>
+                                <GraficoTaxaDesidratacao data={taxaDesidratacao} />
                             </Suspense>
                         </Box>
                     </BentoCard>
