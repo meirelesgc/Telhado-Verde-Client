@@ -86,6 +86,36 @@ export default function Telhados() {
         intervalo_minutos: 30
     });
 
+    const { data: mediaMovelUmid = [] } = useMediaMovel({ 
+        tipo: 'umidade', 
+        id_dispositivo: idDispositivo,
+        data_inicio: dataInicio,
+        data_fim: dataFim,
+        intervalo_minutos: 30
+    });
+
+    const dadosMediaMovel = useMemo(() => {
+        const mapa = new Map();
+
+        mediaMovelTemp.forEach(item => {
+            mapa.set(item.inicio_janela, { 
+                inicio_janela: item.inicio_janela,
+                temperatura: item.media 
+            });
+        });
+
+        mediaMovelUmid.forEach(item => {
+            if (!mapa.has(item.inicio_janela)) {
+                mapa.set(item.inicio_janela, { inicio_janela: item.inicio_janela });
+            }
+            mapa.get(item.inicio_janela).umidade = item.media;
+        });
+
+        return Array.from(mapa.values()).sort(
+            (a, b) => new Date(a.inicio_janela) - new Date(b.inicio_janela)
+        );
+    }, [mediaMovelTemp, mediaMovelUmid]);
+
     const { data: amplitudeTermica = [] } = useAmplitudeTermica({
         id_dispositivo: idDispositivo,
         data_inicio: dataInicio,
@@ -270,9 +300,8 @@ export default function Telhados() {
                         <Box sx={{ height: 400, width: '100%' }}>
                             <Suspense fallback={<div>Carregando média móvel...</div>}>
                                 <GraficoMediaMovel 
-                                    data={mediaMovelTemp} 
-                                    titulo="Média Móvel - Temperatura (7 dias)" 
-                                    cor="#ef4444" 
+                                    data={dadosMediaMovel} 
+                                    titulo="Médias Móveis (7 dias)" 
                                 />
                             </Suspense>
                         </Box>

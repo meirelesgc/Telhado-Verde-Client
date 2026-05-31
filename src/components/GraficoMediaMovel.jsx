@@ -11,10 +11,12 @@ import {
 } from 'recharts';
 import { Box, Typography } from '@mui/material';
 
-export default function GraficoMediaMovel({ data, titulo, cor }) {
+export default function GraficoMediaMovel({ data, titulo }) {
     const dataFormatada = data.map(item => ({
         ...item,
-        tempoFormatado: new Date(item.inicio_janela).toLocaleTimeString([], {
+        tempoFormatado: new Date(item.inicio_janela).toLocaleDateString([], {
+            day: '2-digit',
+            month: '2-digit',
             hour: '2-digit',
             minute: '2-digit'
         })
@@ -29,14 +31,25 @@ export default function GraficoMediaMovel({ data, titulo, cor }) {
                 <LineChart data={dataFormatada} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="tempoFormatado" />
-                    <YAxis domain={['auto', 'auto']} />
+                    <YAxis yAxisId="temp" orientation="left" stroke="#ef4444" domain={['auto', 'auto']} />
+                    <YAxis yAxisId="umid" orientation="right" stroke="#3b82f6" domain={['auto', 'auto']} />
                     <Tooltip />
                     <Legend />
                     <Line 
+                        yAxisId="temp"
                         type="monotone" 
-                        dataKey="media" 
-                        stroke={cor} 
-                        name="Média Suavizada" 
+                        dataKey="temperatura" 
+                        stroke="#ef4444" 
+                        name="Temp. Média (°C)" 
+                        dot={false}
+                        strokeWidth={2}
+                    />
+                    <Line 
+                        yAxisId="umid"
+                        type="monotone" 
+                        dataKey="umidade" 
+                        stroke="#3b82f6" 
+                        name="Umid. Média (%)" 
                         dot={false}
                         strokeWidth={2}
                     />
