@@ -26,17 +26,7 @@ const GraficoAmplitudeTermica = lazy(() => import('../components/GraficoAmplitud
 const GraficoTaxaDesidratacao = lazy(() => import('../components/GraficoTaxaDesidratacao'));
 
 const BentoCard = ({ children, sx = {} }) => (
-    <Card
-        elevation={0}
-        sx={{
-            height: '100%',
-            border: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: 'background.paper',
-            backdropFilter: 'blur(10px)',
-            ...sx
-        }}
-    >
+    <Card sx={{ height: '100%', ...sx }}>
         <CardContent sx={{ height: '100%' }}>
             {children}
         </CardContent>

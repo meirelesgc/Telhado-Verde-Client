@@ -65,11 +65,7 @@ const TelhadosList = () => {
                     {dispositivos.map((telhado) => (
                         <SwiperSlide key={telhado.id}>
                             <Card
-                                elevation={0}
                                 sx={{
-                                    borderRadius: '24px',
-                                    border: '1px solid',
-                                    borderColor: 'divider',
                                     transition: 'transform 0.2s, box-shadow 0.2s',
                                     '&:hover': {
                                         transform: 'translateY(-4px)',

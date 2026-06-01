@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
-import { TablePagination, Box, Button, Typography } from '@mui/material';
+import { 
+    TablePagination, 
+    Box, 
+    Button, 
+    Typography,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Chip
+} from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 export default function TabelaHistorico({ leituras, dispositivos }) {
     const [page, setPage] = useState(0);
@@ -76,42 +91,49 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
                     onClick={downloadCSV}
                     disabled={leituras.length === 0}
                     size="small"
-                    sx={{ borderRadius: '12px' }}
                 >
                     Exportar CSV
                 </Button>
             </Box>
 
-            <div style={{ overflowX: 'auto', border: '1px solid #ccc', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ backgroundColor: '#f4f4f4' }}>
-                        <tr>
-                            <th style={{ border: '1px solid #ccc', padding: '10px' }}>Dispositivo</th>
-                            <th style={{ border: '1px solid #ccc', padding: '10px' }}>Tipo</th>
-                            <th style={{ border: '1px solid #ccc', padding: '10px' }}>Valor</th>
-                            <th style={{ border: '1px solid #ccc', padding: '10px' }}>Data/Hora</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <TableContainer component={Box} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden' }}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell sx={{ fontWeight: 700 }}>Dispositivo</TableCell>
+                            <TableCell sx={{ fontWeight: 700 }}>Tipo</TableCell>
+                            <TableCell sx={{ fontWeight: 700 }}>Valor</TableCell>
+                            <TableCell sx={{ fontWeight: 700 }}>Data/Hora</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {leiturasPaginadas.map((leitura) => (
-                            <tr key={leitura.id}>
-                                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                            <TableRow key={leitura.id} hover>
+                                <TableCell>
                                     {getNomeDispositivo(leitura.id_dispositivo)}
-                                </td>
-                                <td style={{ border: '1px solid #ccc', padding: '8px', textTransform: 'capitalize' }}>
-                                    {leitura.tipo}
-                                </td>
-                                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                                </TableCell>
+                                <TableCell>
+                                    <Chip 
+                                        size="small" 
+                                        icon={leitura.tipo === 'temperatura' ? <ThermostatIcon /> : <WaterDropIcon />}
+                                        label={leitura.tipo === 'temperatura' ? 'Temp' : 'Umid'}
+                                        color={leitura.tipo === 'temperatura' ? 'error' : 'primary'}
+                                        variant="outlined"
+                                        sx={{ textTransform: 'capitalize' }}
+                                    />
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 600, fontFamily: 'monospace.fontFamily' }}>
                                     {leitura.valor.toFixed(1)} {leitura.tipo === 'temperatura' ? '°C' : '%'}
-                                </td>
-                                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                                </TableCell>
+                                <TableCell sx={{ fontFamily: 'monospace.fontFamily' }}>
                                     {new Date(leitura.criado_em).toLocaleString()}
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            
             <TablePagination
                 component="div"
                 count={leituras.length}
@@ -119,7 +141,7 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
                 onPageChange={handleChangePage}
                 rowsPerPage={rowsPerPage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage="Linhas por página:"
+                labelRowsPerPage="Linhas:"
                 rowsPerPageOptions={[5, 10, 25, 50]}
             />
         </Box>

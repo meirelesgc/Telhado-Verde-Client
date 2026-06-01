@@ -25,7 +25,7 @@ const MainLayout = () => {
             sx={{
                 pb: 10,
                 minHeight: '100vh',
-                background: 'linear-gradient(180deg, #DDF4D7 0%, #F4FFF1 100%)'
+                backgroundColor: 'background.default'
             }}
         >
             <Box
@@ -49,7 +49,8 @@ const MainLayout = () => {
                     borderColor: 'divider',
                     borderRadius: '28px',
                     backdropFilter: 'blur(14px)',
-                    backgroundColor: 'custom.brancoTransparente'
+                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
                 }}
             >
                 <BottomNavigation

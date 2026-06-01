@@ -37,7 +37,7 @@ const Home = () => {
                     size="large"
                     startIcon={<GrassIcon />}
                     onClick={() => navigate('/telhados')}
-                    sx={{ borderRadius: '12px', px: 4, py: 1.5 }}
+                    sx={{ px: 4, py: 1.5 }}
                 >
                     Selecionar Telhado
                 </Button>
