@@ -9,20 +9,30 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts';
+import { Box } from '@mui/material';
+import { useChartWidth, calculateTickInterval } from '../hooks/useChartUtils';
 
 export default function GraficoEvolucao({ data }) {
+    const { ref, width } = useChartWidth();
+    const interval = calculateTickInterval(width, data?.length || 0, 70);
+
     return (
-        <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="tempoFormatado" />
-                <YAxis yAxisId="temp" orientation="left" stroke="#ef4444" domain={['dataMin - 2', 'dataMax + 2']} />
-                <YAxis yAxisId="umid" orientation="right" stroke="#3b82f6" domain={['dataMin - 5', 'dataMax + 5']} />
-                <Tooltip />
-                <Legend />
-                <Line yAxisId="temp" type="monotone" dataKey="temperatura" stroke="#ef4444" name="Temperatura (°C)" dot={false} />
-                <Line yAxisId="umid" type="monotone" dataKey="umidade" stroke="#3b82f6" name="Umidade (%)" dot={false} />
-            </LineChart>
-        </ResponsiveContainer>
+        <Box ref={ref} sx={{ width: '100%', height: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                        dataKey="tempoFormatado" 
+                        interval={interval}
+                    />
+                    <YAxis yAxisId="temp" orientation="left" stroke="#ef4444" domain={['dataMin - 2', 'dataMax + 2']} />
+                    <YAxis yAxisId="umid" orientation="right" stroke="#3b82f6" domain={['dataMin - 5', 'dataMax + 5']} />
+                    <Tooltip />
+                    <Legend />
+                    <Line yAxisId="temp" type="monotone" dataKey="temperatura" stroke="#ef4444" name="Temperatura (°C)" dot={false} />
+                    <Line yAxisId="umid" type="monotone" dataKey="umidade" stroke="#3b82f6" name="Umidade (%)" dot={false} />
+                </LineChart>
+            </ResponsiveContainer>
+        </Box>
     );
 }
