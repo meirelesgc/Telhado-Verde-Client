@@ -11,8 +11,10 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Chip
+    Chip,
+    TableSortLabel
 } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
 import DownloadIcon from '@mui/icons-material/Download';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
@@ -21,6 +23,8 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [prevLeituras, setPrevLeituras] = useState(leituras);
+    const [order, setOrder] = useState('desc');
+    const [orderBy, setOrderBy] = useState('data');
 
     if (leituras !== prevLeituras) {
         setPage(0);
@@ -31,6 +35,44 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
         const dispositivo = dispositivos.find(d => d.id === id);
         return dispositivo ? dispositivo.nome : `ID: ${id}`;
     };
+
+    const handleRequestSort = (property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    const sortedLeituras = [...leituras].sort((a, b) => {
+        let aValue, bValue;
+        
+        switch (orderBy) {
+            case 'dispositivo':
+                aValue = getNomeDispositivo(a.id_dispositivo).toLowerCase();
+                bValue = getNomeDispositivo(b.id_dispositivo).toLowerCase();
+                break;
+            case 'tipo':
+                aValue = a.tipo;
+                bValue = b.tipo;
+                break;
+            case 'valor':
+                aValue = a.valor;
+                bValue = b.valor;
+                break;
+            case 'data':
+            default:
+                aValue = new Date(a.criado_em).getTime();
+                bValue = new Date(b.criado_em).getTime();
+                break;
+        }
+
+        if (bValue < aValue) {
+            return order === 'desc' ? -1 : 1;
+        }
+        if (bValue > aValue) {
+            return order === 'desc' ? 1 : -1;
+        }
+        return 0;
+    });
 
     const downloadCSV = () => {
         if (!leituras || leituras.length === 0) return;
@@ -74,10 +116,17 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
         setPage(0);
     };
 
-    const leiturasPaginadas = leituras.slice(
+    const leiturasPaginadas = sortedLeituras.slice(
         page * rowsPerPage,
         page * rowsPerPage + rowsPerPage
     );
+
+    const headCells = [
+        { id: 'dispositivo', label: 'Dispositivo' },
+        { id: 'tipo', label: 'Tipo' },
+        { id: 'valor', label: 'Valor' },
+        { id: 'data', label: 'Data/Hora' },
+    ];
 
     return (
         <Box>
@@ -100,10 +149,26 @@ export default function TabelaHistorico({ leituras, dispositivos }) {
                 <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ fontWeight: 700 }}>Dispositivo</TableCell>
-                            <TableCell sx={{ fontWeight: 700 }}>Tipo</TableCell>
-                            <TableCell sx={{ fontWeight: 700 }}>Valor</TableCell>
-                            <TableCell sx={{ fontWeight: 700 }}>Data/Hora</TableCell>
+                            {headCells.map((headCell) => (
+                                <TableCell
+                                    key={headCell.id}
+                                    sortDirection={orderBy === headCell.id ? order : false}
+                                    sx={{ fontWeight: 700 }}
+                                >
+                                    <TableSortLabel
+                                        active={orderBy === headCell.id}
+                                        direction={orderBy === headCell.id ? order : 'asc'}
+                                        onClick={() => handleRequestSort(headCell.id)}
+                                    >
+                                        {headCell.label}
+                                        {orderBy === headCell.id ? (
+                                            <Box component="span" sx={visuallyHidden}>
+                                                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                            </Box>
+                                        ) : null}
+                                    </TableSortLabel>
+                                </TableCell>
+                            ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
